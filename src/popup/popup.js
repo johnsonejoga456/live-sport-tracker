@@ -30,8 +30,10 @@ document.addEventListener('DOMContentLoaded', () => {
     document.getElementById('closeStale').addEventListener('click', () => {
       chrome.tabs.query({ currentWindow: true }, (tabs) => {
         const now = Date.now();
-        const staleTabs = tabs.filter(t => (now - t.lastAccessed) > 24 * 60 * 60 * 1000); // 24 hours
-        chrome.tabs.remove(staleTabs.map(t => t.id), loadStaleTabs);
+        const staleTabs = tabs.filter(t => (now - t.lastAccessed) > 24 * 60 * 60 * 1000);
+        if (confirm(`Close ${staleTabs.length} stale tabs?`)) {
+          chrome.tabs.remove(staleTabs.map(t => t.id), loadStaleTabs);
+        }
       });
     });
   });
@@ -42,9 +44,12 @@ document.addEventListener('DOMContentLoaded', () => {
       const div = document.getElementById('groups');
       div.innerHTML = '';
       for (const [domain, tabs] of Object.entries(groups)) {
-        const group = document.createElement('div');
-        group.innerHTML = `<h3>${domain} (${tabs.length})</h3><ul>${tabs.map(t => `<li>${t.title}</li>`).join('')}</ul>`;
-        div.appendChild(group);
+        const details = document.createElement('details');
+        details.innerHTML = `
+          <summary>${domain} (${tabs.length})</summary>
+          <ul>${tabs.map(t => `<li><img src="${t.favIconUrl || ''}" width="16" height="16" onerror="this.style.display='none'"> ${t.title}</li>`).join('')}</ul>
+        `;
+        div.appendChild(details);
       }
     });
   }
@@ -53,25 +58,22 @@ document.addEventListener('DOMContentLoaded', () => {
     chrome.storage.local.get(['sessions'], (data) => {
       const sessions = data.sessions || [];
       const ul = document.getElementById('sessions');
-      ul.innerHTML = '';
-      sessions.forEach((session, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          ${session.name} (${session.tabs.length} tabs)
-          <button onclick="restoreSession(${index})">Restore</button>
-          <button onclick="deleteSession(${index})">Delete</button>
-        `;
-        ul.appendChild(li);
-      });
+      ul.innerHTML = sessions.map((s, i) => `
+        <li>${s.name} (${s.tabs.length} tabs)
+          <button onclick="restoreSession(${i})">Restore</button>
+          <button onclick="deleteSession(${i})">Delete</button>
+        </li>
+      `).join('');
     });
   }
   
   function loadStaleTabs() {
     chrome.tabs.query({ currentWindow: true }, (tabs) => {
       const now = Date.now();
-      const staleTabs = tabs.filter(t => (now - t.lastAccessed) > 24 * 60 * 60 * 1000); // 24 hours
-      const ul = document.getElementById('staleTabs');
-      ul.innerHTML = staleTabs.map(t => `<li>${t.title} (Last accessed: ${new Date(t.lastAccessed).toLocaleString()})</li>`).join('');
+      const staleTabs = tabs.filter(t => (now - t.lastAccessed) > 24 * 60 * 60 * 1000);
+      document.getElementById('staleTabs').innerHTML = staleTabs.map(t => `
+        <li><img src="${t.favIconUrl || ''}" width="16" height="16" onerror="this.style.display='none'"> ${t.title} (Last: ${new Date(t.lastAccessed).toLocaleString()})</li>
+      `).join('');
     });
   }
   
