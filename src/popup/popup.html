@@ -1,22 +1,22 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>FocusGuard</title>
+  <title>TabTidy</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>FocusGuard</h1>
-  <p>Time Spent: <span id="timeSpent">0</span> seconds</p>
-  
-  <label>Break Interval (minutes):</label>
-  <input type="number" id="interval" min="1" value="30">
-  
-  <label>Focus Hours:</label>
-  <input type="time" id="focusStart" value="09:00">
-  <input type="time" id="focusEnd" value="17:00">
-  
-  <button id="save">Save Settings</button>
-  
+  <h1>TabTidy</h1>
+  <button id="groupTabs">Group Tabs</button>
+  <button id="focusMode">Focus Mode: Off</button>
+  <h2>Tab Groups</h2>
+  <div id="groups"></div>
+  <h2>Saved Sessions</h2>
+  <input id="sessionName" placeholder="Session Name">
+  <button id="saveSession">Save Session</button>
+  <ul id="sessions"></ul>
+  <h2>Stale Tabs</h2>
+  <button id="closeStale">Close Stale Tabs</button>
+  <ul id="staleTabs"></ul>
   <script src="popup.js"></script>
 </body>
 </html>

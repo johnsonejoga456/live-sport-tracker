@@ -1,13 +1,12 @@
 {
     "manifest_version": 3,
-    "name": "FocusGuard",
+    "name": "TabTidy",
     "version": "1.0",
-    "description": "Track internet time and set break reminders.",
+    "description": "Organize and manage your Chrome tabs effortlessly.",
     "permissions": [
-      "alarms",
-      "notifications",
+      "tabs",
       "storage",
-      "activeTab"
+      "contextMenus"
     ],
     "background": {
       "service_worker": "src/background.js"

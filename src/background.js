@@ -1,46 +1,47 @@
-let timeSpent = 0;
-let isTracking = false;
+let focusMode = false;
+let hiddenTabs = [];
 
-// Load saved time and settings
-chrome.storage.local.get(['timeSpent', 'interval', 'focusHours'], (data) => {
-  timeSpent = data.timeSpent || 0;
-  const interval = data.interval || 30; // Default: 30 mins
-  const focusHours = data.focusHours || { start: '09:00', end: '17:00' };
-  scheduleReminder(interval);
+chrome.contextMenus.create({
+  id: "group-tabs",
+  title: "Group Tabs by Domain",
+  contexts: ["all"]
 });
 
-// Track time when Chrome is in focus
-chrome.windows.onFocusChanged.addListener((windowId) => {
-  if (windowId === chrome.windows.WINDOW_ID_NONE) {
-    isTracking = false;
-  } else {
-    isTracking = true;
-    trackTime();
+chrome.contextMenus.onClicked.addListener((info, tab) => {
+  if (info.menuItemId === "group-tabs") {
+    groupTabsByDomain();
   }
 });
 
-function trackTime() {
-  if (!isTracking) return;
-  setInterval(() => {
-    timeSpent += 1;
-    chrome.storage.local.set({ timeSpent });
-  }, 1000); // Increment every second
-}
+function groupTabsByDomain() {
+  chrome.tabs.query({ currentWindow: true }, (tabs) => {
+    const groups = {};
+    tabs.forEach((tab) => {
+      const domain = new URL(tab.url).hostname;
+      if (!groups[domain]) groups[domain] = [];
+      groups[domain].push(tab);
+    });
 
-// Schedule break reminders
-function scheduleReminder(interval) {
-  chrome.alarms.create('breakReminder', {
-    periodInMinutes: interval
+    chrome.storage.local.set({ tabGroups: groups });
   });
 }
 
-chrome.alarms.onAlarm.addListener((alarm) => {
-  if (alarm.name === 'breakReminder') {
-    chrome.notifications.create({
-      type: 'basic',
-      iconUrl: '../icons/icon48.png',
-      title: 'Time for a Break!',
-      message: 'You’ve been online for a while. Take a break!'
-    });
+// Focus Mode
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === "toggleFocusMode") {
+    focusMode = !focusMode;
+    if (focusMode) {
+      chrome.tabs.query({ currentWindow: true }, (tabs) => {
+        const activeTab = tabs.find(t => t.active);
+        hiddenTabs = tabs.filter(t => !t.active).map(t => t.id);
+        hiddenTabs.forEach(tabId => chrome.tabs.hide(tabId));
+        sendResponse({ focusMode: true });
+      });
+    } else {
+      hiddenTabs.forEach(tabId => chrome.tabs.show(tabId));
+      hiddenTabs = [];
+      sendResponse({ focusMode: false });
+    }
+    return true; // Keep message channel open for async response
   }
 });
