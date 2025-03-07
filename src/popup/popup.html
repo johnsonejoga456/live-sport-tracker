@@ -1,22 +1,16 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TabTidy</title>
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <h1>TabTidy</h1>
-  <button id="groupTabs">Group Tabs</button>
-  <button id="focusMode">Focus Mode: Off</button>
-  <h2>Tab Groups</h2>
-  <div id="groups"></div>
-  <h2>Saved Sessions</h2>
-  <input id="sessionName" placeholder="Session Name">
-  <button id="saveSession">Save Session</button>
-  <ul id="sessions"></ul>
-  <h2>Stale Tabs</h2>
-  <button id="closeStale">Close Stale Tabs</button>
-  <ul id="staleTabs"></ul>
-  <script src="popup.js"></script>
+<h1>TabTidy</h1>
+<button id="groupTabs">Group Similar Tabs</button>
+<button id="closeStaleTabs">Close Stale Tabs</button>
+
+<script src="popup.js" defer></script>
 </body>
 </html>
