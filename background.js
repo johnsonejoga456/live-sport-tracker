@@ -1,39 +1,65 @@
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === "group-tabs") {
-    chrome.tabs.query({ currentWindow: true }, async (tabs) => {
-      let tabGroups = {};
+    if (message.action === "group-tabs") {
+        chrome.tabs.query({ currentWindow: true }, async (tabs) => {
+            let tabGroups = {};
+            let createdGroups = [];
 
-      tabs.forEach((tab) => {
-        // Check if tab.url is valid
-        if (tab.url && tab.url.startsWith("http")) {
-          try {
-            let domain = new URL(tab.url).hostname;
-
-            if (!tabGroups[domain]) {
-              tabGroups[domain] = [];
+            for (let tab of tabs) {
+                if (tab.url && tab.url.startsWith("http")) {
+                    let domain = new URL(tab.url).hostname;
+                    if (!tabGroups[domain]) {
+                        tabGroups[domain] = [];
+                    }
+                    tabGroups[domain].push(tab.id);
+                }
             }
-            tabGroups[domain].push(tab.id);
-          } catch (error) {
-            console.warn("Invalid URL: ", tab.url);
-          }
-        }
-      });
 
-      for (let domain in tabGroups) {
-        if (tabGroups[domain].length > 1) {
-          await chrome.tabs.group({ tabIds: tabGroups[domain] });
-        }
-      }
+            try {
+                for (let domain in tabGroups) {
+                    if (tabGroups[domain].length > 1) {
+                        let groupId = await chrome.tabs.group({ tabIds: tabGroups[domain] });
+                        let color = getRandomColor();
+                        await chrome.tabGroups.update(groupId, { title: domain, color: color });
 
-      chrome.notifications.create({
-        type: "basic",
-        iconUrl: "icons/icon32.png",
-        title: "TabTidy",
-        message: "Tabs grouped successfully 🔥"
-      });
-    });
+                        createdGroups.push({ domain, groupId });
+                    }
+                }
 
-    sendResponse({ status: "done" });
-    return true;
-  }
+                sendResponse({ message: createdGroups.length > 0 ? "Grouped similar tabs!" : "No groups were created." });
+            } catch (error) {
+                console.error("Error grouping tabs:", error);
+                sendResponse({ message: "Error grouping tabs." });
+            }
+        });
+
+        return true; // ✅ Keeps the listener alive for async operations
+    }
+
+    if (message.action === "name-group") {
+        chrome.tabGroups.query({}, async (groups) => {
+            if (groups.length > 0) {
+                let group = groups.find(g => g.id === message.groupId) || groups[0]; // Pick specified or first group
+                
+                try {
+                    await chrome.tabGroups.update(group.id, { title: message.name, color: "purple" });
+                    sendResponse({ message: `Named group: ${message.name}` });
+                } catch (error) {
+                    console.error("Error updating group:", error);
+                    sendResponse({ message: "Failed to update group." });
+                }
+            } else {
+                sendResponse({ message: "No grouped tabs found!" });
+            }
+        });
+
+        return true; // ✅ Keeps the listener alive for async operations
+    }
+
+    return true; // ✅ General fallback
 });
+
+// Function to Get Random Colors
+function getRandomColor() {
+    let colors = ["blue", "green", "red", "yellow", "purple", "pink"];
+    return colors[Math.floor(Math.random() * colors.length)];
+}

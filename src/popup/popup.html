@@ -1,16 +1,51 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>TabTidy</title>
-  <link rel="stylesheet" href="popup.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TabTidy Manager</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            width: 280px;
+            padding: 10px;
+            background: #f4f4f4;
+            text-align: center;
+        }
+        h2 {
+            color: #333;
+        }
+        button {
+            display: block;
+            width: 100%;
+            margin: 8px 0;
+            padding: 10px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            border-radius: 5px;
+        }
+        .group-btn { background: #4285F4; color: white; }
+        .name-btn { background: #34A853; color: white; }
+        .close-btn { background: #EA4335; color: white; }
+        .undo-btn { background: #FBBC05; color: black; }
+        #status {
+            margin-top: 10px;
+            font-size: 13px;
+            color: #666;
+        }
+    </style>
 </head>
 <body>
-<h1>TabTidy</h1>
-<button id="groupTabs">Group Similar Tabs</button>
-<button id="closeStaleTabs">Close Stale Tabs</button>
 
-<script src="popup.js" defer></script>
+    <h2>TabTidy</h2>
+    <button id="groupTabs" class="group-btn">🗂 Group Similar Tabs</button>
+    <button id="nameGroup" class="name-btn">✏️ Name a Tab Group</button>
+    <button id="closeInactiveTabs" class="close-btn">❌ Close Inactive Tabs</button>
+    <button id="undoClose" class="undo-btn">🔄 Undo Close</button>
+
+    <p id="status"></p>
+
+    <script src="popup.js"></script>
 </body>
 </html>

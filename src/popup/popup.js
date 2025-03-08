@@ -1,21 +1,39 @@
 document.addEventListener("DOMContentLoaded", () => {
-    document.getElementById("groupTabs").addEventListener("click", () => {
-      chrome.runtime.sendMessage({ action: "group-tabs" });
-    });
-  
-    document.getElementById("closeStaleTabs").addEventListener("click", () => {
-      chrome.tabs.query({ currentWindow: true }, (tabs) => {
-        let staleTabs = tabs.filter((tab) => tab.url.includes("wikipedia") || tab.url.includes("stackoverflow"));
-  
-        chrome.notifications.create({
-          type: "basic",
-          iconUrl: "../icons/icon48.png",
-          title: "TabTidy",
-          message: `Closed ${staleTabs.length} stale tabs`
+    const groupTabsBtn = document.getElementById("groupTabs");
+    const nameGroupBtn = document.getElementById("nameGroup");
+    const closeInactiveTabsBtn = document.getElementById("closeInactiveTabs");
+    const undoCloseBtn = document.getElementById("undoClose");
+    const status = document.getElementById("status");
+
+    function updateStatus(message) {
+        status.innerText = message;
+        setTimeout(() => status.innerText = "", 4000);
+    }
+
+    groupTabsBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "group-tabs" }, (response) => {
+            updateStatus(response?.message || "Grouped Similar Tabs!");
         });
-  
-        staleTabs.forEach((tab) => chrome.tabs.remove(tab.id));
-      });
     });
-  });
-  
+
+    nameGroupBtn.addEventListener("click", () => {
+        let groupName = prompt("Enter a name for this tab group:");
+        if (groupName) {
+            chrome.runtime.sendMessage({ action: "name-group", name: groupName }, (response) => {
+                updateStatus(response?.message || `Group named: ${groupName}`);
+            });
+        }
+    });
+
+    closeInactiveTabsBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "close-inactive-tabs" }, (response) => {
+            updateStatus(response?.message || "Closed inactive tabs!");
+        });
+    });
+
+    undoCloseBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "undo-close" }, (response) => {
+            updateStatus(response?.message || "Restored recently closed tab!");
+        });
+    });
+});
