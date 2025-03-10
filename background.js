@@ -52,6 +52,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         });
 
+        if (message.action === "get-groups") {
+            chrome.tabGroups.query({}, (groups) => {
+                if (groups.length > 0) {
+                    let groupList = groups.map(group => ({
+                        id: group.id,
+                        title: group.title || "Unnamed Group",
+                        color: group.color || "gray"
+                    }));
+                    sendResponse({ groups: groupList });
+                } else {
+                    sendResponse({ groups: [] });
+                }
+            });
+            return true; // ✅ Keeps the listener alive for async operations
+        }
+        
+
         return true; // ✅ Keeps the listener alive for async operations
     }
 

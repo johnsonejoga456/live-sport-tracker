@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const nameGroupBtn = document.getElementById("nameGroup");
     const closeInactiveTabsBtn = document.getElementById("closeInactiveTabs");
     const undoCloseBtn = document.getElementById("undoClose");
+    const showGroupsBtn = document.getElementById("show-groups"); // Added
     const status = document.getElementById("status");
 
     function updateStatus(message) {
@@ -34,6 +35,24 @@ document.addEventListener("DOMContentLoaded", () => {
     undoCloseBtn.addEventListener("click", () => {
         chrome.runtime.sendMessage({ action: "undo-close" }, (response) => {
             updateStatus(response?.message || "Restored recently closed tab!");
+        });
+    });
+
+    // Integrated "show-groups" functionality
+    showGroupsBtn.addEventListener("click", () => {
+        chrome.runtime.sendMessage({ action: "get-groups" }, (response) => {
+            let groupListDiv = document.getElementById("group-list");
+            groupListDiv.innerHTML = ""; // Clear previous list
+            
+            if (response.groups && response.groups.length > 0) {
+                response.groups.forEach(group => {
+                    let groupItem = document.createElement("div");
+                    groupItem.textContent = `📂 ${group.title} (Color: ${group.color})`;
+                    groupListDiv.appendChild(groupItem);
+                });
+            } else {
+                groupListDiv.textContent = "No tab groups found!";
+            }
         });
     });
 });
