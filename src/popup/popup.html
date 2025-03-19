@@ -3,51 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TabTidy Manager</title>
+    <title>Tab Manager</title>
     <style>
         body {
+            width: 300px;
             font-family: Arial, sans-serif;
-            width: 280px;
             padding: 10px;
-            background: #f4f4f4;
-            text-align: center;
-        }
-        h2 {
-            color: #333;
         }
         button {
             display: block;
             width: 100%;
-            margin: 8px 0;
-            padding: 10px;
+            margin-bottom: 5px;
+            padding: 8px;
+            background-color: #007bff;
+            color: white;
             border: none;
             cursor: pointer;
-            font-size: 14px;
-            border-radius: 5px;
         }
-        .group-btn { background: #4285F4; color: white; }
-        .name-btn { background: #34A853; color: white; }
-        .close-btn { background: #EA4335; color: white; }
-        .undo-btn { background: #FBBC05; color: black; }
-        #status {
+        button:hover {
+            background-color: #0056b3;
+        }
+        #group-list {
             margin-top: 10px;
-            font-size: 13px;
-            color: #666;
+            padding: 5px;
+            border-top: 1px solid #ccc;
+        }
+        .group-item {
+            padding: 5px;
+            margin: 2px 0;
+            background: #f0f0f0;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
-
-    <h2>TabTidy</h2>
-    <button id="groupTabs" class="group-btn">🗂 Group Similar Tabs</button>
-    <button id="nameGroup" class="name-btn">✏️ Name a Tab Group</button>
-    <button id="closeInactiveTabs" class="close-btn">❌ Close Inactive Tabs</button>
-    <button id="undoClose" class="undo-btn">🔄 Undo Close</button>
+    <button id="group-tabs">Group Similar Tabs</button>
     <button id="show-groups">Show Groups</button>
     <div id="group-list"></div>
-
-    <p id="status"></p>
-
     <script src="popup.js"></script>
 </body>
 </html>

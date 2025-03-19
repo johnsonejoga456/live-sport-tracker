@@ -5,6 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const undoCloseBtn = document.getElementById("undoClose");
     const showGroupsBtn = document.getElementById("show-groups"); // Added
     const status = document.getElementById("status");
+    const groupListDiv = document.getElementById("group-list");
 
     function updateStatus(message) {
         status.innerText = message;
@@ -38,13 +39,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Integrated "show-groups" functionality
+    // Integrated "show-groups" functionality with better handling
     showGroupsBtn.addEventListener("click", () => {
         chrome.runtime.sendMessage({ action: "get-groups" }, (response) => {
-            let groupListDiv = document.getElementById("group-list");
             groupListDiv.innerHTML = ""; // Clear previous list
             
-            if (response.groups && response.groups.length > 0) {
+            if (response?.groups?.length > 0) {
                 response.groups.forEach(group => {
                     let groupItem = document.createElement("div");
                     groupItem.textContent = `📂 ${group.title} (Color: ${group.color})`;
